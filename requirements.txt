@@ -1,0 +1,4 @@
+requests>=2.31.0
+mcp>=1.14.1
+fastmcp>=2.12.3
+gradio>=3.35.0
