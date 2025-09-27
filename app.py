@@ -229,6 +229,10 @@ def create_gui():
         3. 选择需要获取的天气预报天数
         4. 点击"查询天气"按钮获取天气信息
         5. 点击"检查API密钥设置"按钮可验证API密钥是否正确设置
+        
+        ### MCP服务器模式
+        本应用已配置为支持作为MCP服务器运行，每个API端点对应一个MCP工具。当前已自动启用MCP服务器模式。
+        如需通过环境变量控制，可设置 `GRADIO_MCP_SERVER` 环境变量为 "True"。
         """)
     
     return demo
@@ -240,5 +244,6 @@ if __name__ == "__main__":
         server_name="127.0.0.1",
         server_port=7860,
         share=False,
-        inbrowser=True
+        inbrowser=True,
+        mcp_server=True
     )
