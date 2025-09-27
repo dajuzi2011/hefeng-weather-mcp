@@ -1,7 +1,7 @@
 # 天气服务 GUI 界面
 
 这是基于Gradio的天气服务图形用户界面，为天气服务MCP服务器提供了直观的可视化操作方式。
-主程序：weather_gui.py
+主程序：app.py
 
 ## 功能特性
 
@@ -77,7 +77,7 @@ source ~/.bashrc  # 或对应您的shell配置文件
 安装完成并设置好API密钥后，可以通过以下命令启动GUI应用：
 
 ```bash
-python weather_gui.py
+python app.py
 ```
 
 应用启动后，将会自动在默认浏览器中打开GUI界面，地址为：http://127.0.0.1:7860
