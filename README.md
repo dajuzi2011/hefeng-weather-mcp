@@ -77,6 +77,94 @@ python weather_mcp_server.py
 
 默认情况下，服务器以SSE模式运行在127.0.0.1:8000上。
 
+## Claude Desktop配置
+
+您可以将此天气服务配置到Claude Desktop中，以便直接在Claude中查询天气信息。
+
+### SSE模式配置
+
+1. **启动天气服务**
+
+   首先确保已设置环境变量`WEATHER_API_KEY`，然后启动服务：
+
+   ```bash
+   python weather_mcp_server.py
+   ```
+
+2. **创建Claude配置文件**
+
+   在Claude Desktop的配置目录中创建或编辑`claude_desktop_config.json`文件：
+
+   Windows路径: `%APPDATA%\Claude\claude_desktop_config.json`
+   macOS路径: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   Linux路径: `~/.config/claude/claude_desktop_config.json`
+
+3. **添加以下配置**
+
+   ```json
+   {
+     "mcpServers": {
+       "weather-service": {
+         "command": "stdio",
+         "args": [],
+         "env": {
+           "WEATHER_API_KEY": "your_api_key_here"
+         },
+         "url": "http://127.0.0.1:8000/sse"
+       }
+     }
+   }
+   ```
+
+   请将`your_api_key_here`替换为您实际的和风天气API密钥。
+
+4. **重启Claude Desktop**
+
+   保存配置文件后，重启Claude Desktop以加载新的MCP服务。
+
+### 使用便捷脚本（Windows）
+
+为了方便启动服务，您可以创建一个Windows批处理文件`start_weather_service.bat`：
+
+```batch
+@echo off
+echo 启动天气服务...
+set WEATHER_API_KEY=your_api_key_here
+python weather_mcp_server.py
+pause
+```
+
+请将`your_api_key_here`替换为您实际的API密钥。双击此文件即可启动天气服务。
+
+### 验证服务运行
+
+服务启动后，您可以通过浏览器访问以下URL来验证服务是否正常运行：
+
+```
+http://127.0.0.1:8000/sse
+```
+
+如果看到连接成功的消息，说明服务正在正常运行。
+
+### 常见问题解决
+
+1. **端口被占用**
+   
+   如果8000端口已被占用，您可以修改`weather_mcp_server.py`中的端口号，或终止占用该端口的进程：
+
+   ```bash
+   netstat -ano | findstr :8000
+   taskkill /PID <进程ID> /F
+   ```
+
+2. **API密钥错误**
+   
+   确保已正确设置环境变量`WEATHER_API_KEY`，并且API密钥有效。
+
+3. **Claude Desktop无法连接服务**
+   
+   确保天气服务正在运行，并且Claude Desktop配置文件中的URL和端口正确。
+
 
 ## 使用示例
 
