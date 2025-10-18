@@ -249,8 +249,7 @@ def get_weather_by_location_name(location_name: str) -> str:
         return '{"error": "获取天气数据失败"}'
 
 if __name__ == "__main__":
-    # SSE模式需要指定端口和主机名等参数
-    mcp.run(
-        transport='sse',
-        port=8000
-    )
+    # 默认使用STDIO模式，适合Claude Desktop直接调用
+    # 如需使用SSE模式，请修改为：
+    # mcp.run(transport='sse', port=8000)
+    mcp.run()

@@ -16,122 +16,7 @@
 
 ### 1. 设置API密钥
 
-为了安全地部署到网络服务器上，API密钥应该通过环境变量传入，而不是硬编码在代码中。详细的环境变量配置方法请参考"服务配置"部分的"环境变量配置"小节。
-
-### 2. 安装依赖
-
-确保您已安装Python 3.7或更高版本。然后安装项目依赖：
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. 运行服务
-
-开发环境中，您可以直接运行：
-
-```bash
-python weather_mcp_server.py
-```
-
-详细的服务配置和启动方法请参考"服务配置"部分。
-
-## 服务配置
-
-### SSE模式配置
-
-默认情况下，天气服务以SSE（Server-Sent Events）模式运行，适用于Claude Desktop等客户端连接。
-
-#### 启动SSE服务
-
-```bash
-# 设置API密钥环境变量
-set WEATHER_API_KEY=your_api_key_here  # Windows
-# 或
-export WEATHER_API_KEY=your_api_key_here  # Linux/macOS
-
-# 启动服务
-python weather_mcp_server.py
-```
-
-服务将在 `http://127.0.0.1:8000/sse` 上启动。
-
-#### Claude Desktop配置
-
-创建或编辑Claude Desktop配置文件（Windows: `%APPDATA%\Claude\claude_desktop_config.json`），添加以下内容：
-
-```json
-{
-  "mcpServers": {
-    "weather-service": {
-      "command": "stdio",
-      "args": [],
-      "env": {
-        "WEATHER_API_KEY": "your_api_key_here"
-      },
-      "url": "http://127.0.0.1:8000/sse"
-    }
-  }
-}
-```
-
-#### Windows批处理文件（可选）
-
-为了方便启动服务，可以创建一个批处理文件 `start_weather_service.bat`：
-
-```batch
-@echo off
-echo Starting Weather Service...
-set WEATHER_API_KEY=your_api_key_here
-python weather_mcp_server.py
-pause
-```
-
-#### 验证服务运行
-
-在浏览器中访问 `http://127.0.0.1:8000/sse`，如果看到连接事件，则表示服务正常运行。
-
-#### 端口冲突解决
-
-如果8000端口被占用，可以修改 `weather_mcp_server.py` 中的端口配置，或者终止占用端口的进程：
-
-```bash
-# 查找占用8000端口的进程
-netstat -ano | findstr :8000
-
-# 终止进程（替换PID为实际的进程ID）
-taskkill /PID <PID> /F
-```
-
-### STDIO模式配置（可选）
-
-如果需要使用STDIO模式而不是SSE模式，可以修改 `weather_mcp_server.py` 文件的最后部分：
-
-```python
-# 将这行
-mcp.run(transport='sse', port=8000)
-
-# 改为
-mcp.run(transport='stdio')
-```
-
-然后在Claude Desktop配置中使用：
-
-```json
-{
-  "mcpServers": {
-    "weather-service": {
-      "command": "python",
-      "args": ["d:\\QtDocuments\\mcp\\weather_mcp_server.py"],
-      "env": {
-        "WEATHER_API_KEY": "your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-### 环境变量配置
+为了安全地部署到网络服务器上，API密钥应该通过环境变量传入，而不是硬编码在代码中。
 
 #### Windows系统
 
@@ -172,6 +57,103 @@ export WEATHER_API_KEY=your_api_key_here
 source ~/.bashrc  # 或对应您的shell配置文件
 ```
 
+### 2. 安装依赖
+
+确保您已安装Python 3.7或更高版本。然后安装项目依赖：
+
+## 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+## 运行服务
+
+开发环境中，您可以直接运行：
+
+```bash
+python weather_mcp_server.py
+```
+
+默认情况下，服务器以STDIO模式运行，适合Claude Desktop直接调用。
+
+### 切换到SSE模式
+
+如果需要切换到SSE模式（用于调试或测试），请修改`weather_mcp_server.py`文件末尾的代码：
+
+```python
+if __name__ == "__main__":
+    # 使用SSE模式，需要指定端口和主机名等参数
+    mcp.run(
+        transport='sse',
+        port=8000
+    )
+```
+
+修改后，服务器将以SSE模式运行在127.0.0.1:8000上。
+
+## Claude Desktop配置
+
+### SSE模式配置
+
+如果需要在Claude Desktop中配置此SSE服务，可以创建以下JSON配置文件：
+
+```json
+{
+  "mcpServers": {
+    "weather-sse-server": {
+      "type": "sse",
+      "url": "http://127.0.0.1:8000/sse"
+    }
+  }
+}
+```
+
+#### SSE配置说明
+- `weather-sse-server`：服务名称，可以自定义
+- `type: "sse"`：指定服务类型为SSE
+- `url`：SSE服务的地址，默认端口为8000
+
+使用此配置前，需要先启动天气服务：
+```bash
+python weather_mcp_server.py
+```
+
+### STDIO模式配置
+
+如果需要使用STDIO模式（推荐用于生产环境），可以创建以下JSON配置文件：
+
+```json
+{
+  "mcpServers": {
+    "weather-stdio-server": {
+      "command": "python",
+      "args": ["d:\\QtDocuments\\mcp\\weather_mcp_server.py"],
+      "env": {
+        "WEATHER_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+#### STDIO配置说明
+- `weather-stdio-server`：服务名称，可以自定义
+- `command`：执行命令，这里是Python
+- `args`：命令参数，指定weather_mcp_server.py的完整路径
+- `env`：环境变量，必须设置WEATHER_API_KEY
+
+**注意**：
+1. 请将`d:\\QtDocuments\\mcp\\weather_mcp_server.py`替换为您的实际文件路径
+2. 请将`your_api_key_here`替换为您的实际API密钥
+3. STDIO模式不需要预先启动服务，Claude Desktop会自动启动
+
+### 模式选择建议
+
+- **开发环境**：使用SSE模式，便于调试和测试
+- **生产环境**：使用STDIO模式，更稳定且不需要额外端口
+
+使用任一配置文件导入到Claude Desktop后，即可在Claude中调用天气服务的各种功能。
 
 ## 使用示例
 
@@ -379,6 +361,3 @@ get_weather_by_location_name("福建")
 - 为了提高安全性，建议在生产环境中使用HTTPS协议
 - 生产环境中建议使用WSGI服务器（如gunicorn）来运行服务，以提高性能和稳定性
 - 请妥善保管您的API密钥，不要在代码中硬编码或提交到版本控制系统中
-- SSE模式默认运行在8000端口，确保该端口未被其他程序占用
-- 如果使用Claude Desktop，确保正确配置了MCP服务器连接信息
-- 服务启动后，可以通过访问 `http://127.0.0.1:8000/sse` 验证服务是否正常运行
